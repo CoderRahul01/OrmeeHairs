@@ -1,0 +1,21 @@
+# Database (Neon DB)
+DATABASE_URL=""
+
+# NextAuth.js
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET=""
+
+# Payment Gateway (Razorpay)
+RAZORPAY_KEY_ID=""
+RAZORPAY_KEY_SECRET=""
+
+# Email Service (Brevo/Sendinblue)
+BREVO_API_KEY=""
+BREVO_DEFAULT_SENDER_EMAIL=""
+BREVO_DEFAULT_SENDER_NAME="Ormee Hair"
+
+# Admin Access
+ADMIN_EMAIL=""
+
+# Application URL
+NEXT_PUBLIC_APP_URL="http://localhost:3000" 
