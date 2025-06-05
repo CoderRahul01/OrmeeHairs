@@ -1,206 +1,252 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, PackageCheck } from 'lucide-react';
 
-import { Button } from '@/components/ui/Button';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { Section } from '@/components/ui/Section';
+import { Container } from '@/components/ui/Container';
+import { Heading, Text } from '@/components/ui/Typography';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 import { useCart } from '@/lib/contexts/CartContext';
-import { getPlaceholderImage } from '@/lib/utils/placeholders';
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, subtotal } = useCart();
+  const { 
+    items, 
+    updateQuantity, 
+    removeItem, 
+    clearCart, 
+    subtotal 
+  } = useCart();
   
-  // Format price
-  const formatPrice = (price: number) => {
+  const [mounted, setMounted] = useState(false);
+  
+  // This ensures the component only renders client-side to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Calculate shipping (free over ₹999)
+  const shipping = subtotal >= 999 || subtotal === 0 ? 0 : 149;
+  
+  // Calculate tax (5% of subtotal)
+  const tax = Math.round(subtotal * 0.05);
+  
+  // Calculate order total
+  const total = subtotal + shipping + tax;
+  
+  // Format currency
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-    }).format(price);
+    }).format(amount);
   };
   
-  // Calculate shipping (free for orders over ₹1000)
-  const shippingCost = subtotal > 1000 ? 0 : 150;
-  
-  // Calculate tax (18% GST)
-  const taxRate = 0.18;
-  const taxAmount = subtotal * taxRate;
-  
-  // Calculate total
-  const total = subtotal + shippingCost + taxAmount;
+  if (!mounted) {
+    return null;
+  }
   
   return (
     <MainLayout>
-      <div className="py-12 bg-background">
-        <div className="container">
-          <h1 className="font-heading text-3xl md:text-4xl font-bold tracking-tight text-text-primary mb-8">
-            Your Cart
-          </h1>
+      <Container>
+        <div className="py-6">
+          <Heading variant="h2" className="mb-8">Your Shopping Cart</Heading>
           
-          {items.length > 0 ? (
+          {items.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="mb-6 flex justify-center">
+                <ShoppingBag className="h-16 w-16 text-text-secondary/30" />
+              </div>
+              <Heading variant="h4" className="mb-4">Your cart is empty</Heading>
+              <Text className="mb-8 max-w-md mx-auto">
+                Looks like you haven't added any items to your cart yet. Continue shopping to find products you'll love.
+              </Text>
+              <Button asChild>
+                <Link href="/products">Continue Shopping</Link>
+              </Button>
+            </div>
+          ) : (
             <div className="grid lg:grid-cols-3 gap-8">
-              {/* Cart Items */}
-              <div className="lg:col-span-2 space-y-4">
-                {/* Headers - Desktop only */}
-                <div className="hidden md:grid grid-cols-12 gap-4 pb-2 border-b border-accent-gold/10 text-sm font-medium text-text-secondary">
-                  <div className="col-span-6">Product</div>
-                  <div className="col-span-2 text-center">Price</div>
-                  <div className="col-span-2 text-center">Quantity</div>
-                  <div className="col-span-2 text-right">Total</div>
-                </div>
-                
-                {/* Cart Items */}
-                {items.map((item) => (
-                  <div 
-                    key={item.id}
-                    className="grid md:grid-cols-12 gap-4 p-4 bg-background-secondary rounded-lg border border-accent-gold/10"
-                  >
-                    {/* Product Info */}
-                    <div className="md:col-span-6 flex gap-4">
-                      <div className="relative w-20 h-20 flex-shrink-0 bg-white rounded-md overflow-hidden">
-                        <Image
-                          src={item.image || getPlaceholderImage('thumbnail')}
-                          alt={item.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <Link href={`/products/${item.id}`} className="font-medium text-text-primary hover:text-accent-gold">
-                          {item.name}
-                        </Link>
-                        <div className="mt-auto flex md:hidden">
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="text-text-secondary hover:text-accent-rose transition-colors"
-                            aria-label="Remove from cart"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Price */}
-                    <div className="md:col-span-2 flex md:justify-center items-center">
-                      <div className="text-sm md:hidden font-medium text-text-secondary">Price:</div>
-                      <div className="ml-auto md:ml-0 text-text-primary">{formatPrice(item.price)}</div>
-                    </div>
-                    
-                    {/* Quantity */}
-                    <div className="md:col-span-2 flex md:justify-center items-center">
-                      <div className="text-sm md:hidden font-medium text-text-secondary">Quantity:</div>
-                      <div className="ml-auto md:ml-0 flex items-center border border-accent-gold/20 rounded-md">
-                        <button
-                          onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                          className="w-7 h-7 flex items-center justify-center text-text-primary hover:bg-background"
-                          aria-label="Decrease quantity"
-                          disabled={item.quantity <= 1}
-                        >
-                          -
-                        </button>
-                        <input
-                          type="number"
-                          value={item.quantity}
-                          onChange={(e) => updateQuantity(item.id, Math.max(1, parseInt(e.target.value) || 1))}
-                          className="w-10 h-7 text-center border-x border-accent-gold/20 bg-transparent text-text-primary"
-                          min="1"
-                        />
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="w-7 h-7 flex items-center justify-center text-text-primary hover:bg-background"
-                          aria-label="Increase quantity"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {/* Total */}
-                    <div className="md:col-span-2 flex md:justify-end items-center">
-                      <div className="text-sm md:hidden font-medium text-text-secondary">Total:</div>
-                      <div className="ml-auto font-medium text-text-primary">
-                        {formatPrice(item.price * item.quantity)}
-                      </div>
-                      <button
-                        onClick={() => removeItem(item.id)}
-                        className="hidden md:flex ml-4 text-text-secondary hover:text-accent-rose transition-colors"
-                        aria-label="Remove from cart"
+              {/* Cart Items (Left) */}
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardContent className="p-0">
+                    <div className="border-b border-accent-gold/10 p-4 flex justify-between items-center">
+                      <Text weight="medium">
+                        {items.length} {items.length === 1 ? 'Item' : 'Items'}
+                      </Text>
+                      <button 
+                        onClick={clearCart}
+                        className="text-sm text-accent-gold hover:underline"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        Clear Cart
                       </button>
                     </div>
-                  </div>
-                ))}
+                    
+                    <ul className="divide-y divide-accent-gold/10">
+                      {items.map((item) => (
+                        <li key={item.id} className="p-4 md:p-6 flex flex-col md:flex-row md:items-center gap-4">
+                          <div className="flex gap-4 flex-1">
+                            {/* Product Image */}
+                            <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md bg-background-secondary">
+                              <ImageWithFallback
+                                src={item.image}
+                                alt={item.name}
+                                fill
+                                className="object-cover"
+                                fallbackType="thumbnail"
+                              />
+                            </div>
+                            
+                            {/* Product Details */}
+                            <div className="flex flex-col flex-1 min-w-0">
+                              <Link 
+                                href={`/products/${item.id}`}
+                                className="font-medium text-text-primary hover:text-accent-gold transition-colors line-clamp-1"
+                              >
+                                {item.name}
+                              </Link>
+                              
+                              <Text variant="small" className="text-text-secondary mt-1">
+                                {formatCurrency(item.price)} each
+                              </Text>
+                              
+                              <div className="flex items-center justify-between mt-4 md:mt-2">
+                                <div className="flex items-center border border-accent-gold/20 rounded-md">
+                                  <button
+                                    onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                                    className="w-8 h-8 flex items-center justify-center text-text-primary hover:bg-background-secondary"
+                                    aria-label="Decrease quantity"
+                                    disabled={item.quantity <= 1}
+                                  >
+                                    <Minus className="h-3 w-3" />
+                                  </button>
+                                  <span className="w-8 h-8 flex items-center justify-center text-sm">
+                                    {item.quantity}
+                                  </span>
+                                  <button
+                                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                    className="w-8 h-8 flex items-center justify-center text-text-primary hover:bg-background-secondary"
+                                    aria-label="Increase quantity"
+                                  >
+                                    <Plus className="h-3 w-3" />
+                                  </button>
+                                </div>
+                                
+                                <div className="md:hidden">
+                                  <Text weight="medium">
+                                    {formatCurrency(item.price * item.quantity)}
+                                  </Text>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Price and Remove (Desktop) */}
+                          <div className="hidden md:flex flex-col items-end gap-4">
+                            <Text weight="medium">
+                              {formatCurrency(item.price * item.quantity)}
+                            </Text>
+                            
+                            <button
+                              onClick={() => removeItem(item.id)}
+                              className="text-text-secondary hover:text-accent-rose transition-colors"
+                              aria-label={`Remove ${item.name} from cart`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                          
+                          {/* Remove Button (Mobile) */}
+                          <div className="md:hidden">
+                            <button
+                              onClick={() => removeItem(item.id)}
+                              className="text-sm text-accent-rose hover:underline"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
                 
-                {/* Continue Shopping Button */}
-                <div className="pt-4">
-                  <Link 
-                    href="/products" 
-                    className="inline-flex items-center text-sm text-accent-gold hover:underline"
-                  >
-                    <ShoppingBag className="mr-1 h-4 w-4" />
-                    Continue Shopping
-                  </Link>
-                </div>
-              </div>
-              
-              {/* Order Summary */}
-              <div className="lg:col-span-1">
-                <div className="bg-background-secondary p-6 rounded-lg border border-accent-gold/10">
-                  <h2 className="font-heading text-xl font-bold text-text-primary mb-4">
-                    Order Summary
-                  </h2>
-                  
-                  <div className="space-y-3 mb-6">
-                    <div className="flex justify-between text-text-secondary">
-                      <span>Subtotal</span>
-                      <span>{formatPrice(subtotal)}</span>
-                    </div>
-                    <div className="flex justify-between text-text-secondary">
-                      <span>Shipping</span>
-                      <span>{shippingCost === 0 ? 'Free' : formatPrice(shippingCost)}</span>
-                    </div>
-                    <div className="flex justify-between text-text-secondary">
-                      <span>Tax (18% GST)</span>
-                      <span>{formatPrice(taxAmount)}</span>
-                    </div>
-                    <div className="border-t border-accent-gold/10 pt-3 flex justify-between font-medium text-text-primary">
-                      <span>Total</span>
-                      <span>{formatPrice(total)}</span>
-                    </div>
-                  </div>
-                  
-                  <Button asChild fullWidth>
-                    <Link href="/checkout">
-                      Proceed to Checkout
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                <div className="mt-4">
+                  <Button variant="outline" asChild className="flex items-center">
+                    <Link href="/products">
+                      <ArrowRight className="h-4 w-4 mr-2 rotate-180" />
+                      Continue Shopping
                     </Link>
                   </Button>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="text-center py-16 space-y-4">
-              <ShoppingBag className="mx-auto h-16 w-16 text-accent-gold/20" />
-              <h2 className="text-2xl font-medium text-text-primary">Your cart is empty</h2>
-              <p className="text-text-secondary max-w-md mx-auto">
-                Looks like you haven't added any products to your cart yet.
-                Browse our collection to find something you'll love.
-              </p>
-              <div className="pt-4">
-                <Button asChild>
-                  <Link href="/products">
-                    Browse Products
-                  </Link>
-                </Button>
+              
+              {/* Order Summary (Right) */}
+              <div>
+                <Card>
+                  <CardContent className="p-6">
+                    <Heading variant="h5" className="mb-4">Order Summary</Heading>
+                    
+                    <div className="space-y-3 mb-6">
+                      <div className="flex justify-between">
+                        <Text>Subtotal</Text>
+                        <Text weight="medium">{formatCurrency(subtotal)}</Text>
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <Text>Shipping</Text>
+                        <Text weight="medium">
+                          {shipping === 0 ? 'Free' : formatCurrency(shipping)}
+                        </Text>
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <Text>Tax (5%)</Text>
+                        <Text weight="medium">{formatCurrency(tax)}</Text>
+                      </div>
+                      
+                      <div className="border-t border-accent-gold/10 pt-3 flex justify-between">
+                        <Text weight="medium">Total</Text>
+                        <Text weight="bold" className="text-lg">{formatCurrency(total)}</Text>
+                      </div>
+                    </div>
+                    
+                    <Button fullWidth asChild>
+                      <Link href="/checkout">
+                        Proceed to Checkout
+                      </Link>
+                    </Button>
+                    
+                    {/* Shipping Information */}
+                    <div className="mt-6 bg-background-secondary rounded-md p-4">
+                      <div className="flex gap-2 mb-2">
+                        <PackageCheck className="h-5 w-5 text-accent-gold flex-shrink-0" />
+                        <Text weight="medium">Free shipping on orders over ₹999</Text>
+                      </div>
+                      <Text variant="small" className="text-text-secondary">
+                        Most orders are delivered within 3-5 business days
+                      </Text>
+                    </div>
+                    
+                    {/* Payment Methods */}
+                    <div className="mt-4">
+                      <Text variant="small" className="text-text-secondary text-center">
+                        We accept all major credit cards, UPI, and net banking. 
+                        Secure payments processed by Razorpay.
+                      </Text>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           )}
         </div>
-      </div>
+      </Container>
     </MainLayout>
   );
 } 

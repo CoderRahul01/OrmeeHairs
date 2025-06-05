@@ -1,10 +1,14 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingBag, Heart } from 'lucide-react';
+
 import { Button } from '../ui/Button';
+import { ImageWithFallback } from '../ui/ImageWithFallback';
+import { Card } from '../ui/Card';
+import { Badge } from '../ui/Badge';
+import { Text } from '../ui/Typography';
 import { useCart } from '../../lib/contexts/CartContext';
 
 interface ProductCardProps {
@@ -44,19 +48,21 @@ export function ProductCard({
   
   return (
     <div className="group relative">
-      {/* Discount badge */}
-      {discount > 0 && (
-        <div className="absolute top-2 left-2 z-10 bg-accent-rose text-white text-xs font-medium px-2 py-1 rounded">
-          {discount}% OFF
-        </div>
-      )}
-      
-      {/* Featured badge */}
-      {isFeatured && (
-        <div className="absolute top-2 right-2 z-10 bg-accent-gold text-white text-xs font-medium px-2 py-1 rounded">
-          Featured
-        </div>
-      )}
+      <div className="absolute top-2 left-2 z-10 flex flex-col gap-2">
+        {/* Discount badge */}
+        {discount > 0 && (
+          <Badge variant="secondary">
+            {discount}% OFF
+          </Badge>
+        )}
+        
+        {/* Featured badge */}
+        {isFeatured && (
+          <Badge variant="default">
+            Featured
+          </Badge>
+        )}
+      </div>
       
       {/* Wishlist button */}
       <button 
@@ -69,12 +75,13 @@ export function ProductCard({
       {/* Product image with link */}
       <Link href={`/products/${slug}`} className="block overflow-hidden rounded-md">
         <div className="aspect-[4/5] relative bg-background-secondary overflow-hidden">
-          <Image
+          <ImageWithFallback
             src={image}
             alt={name}
             fill
             sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
+            fallbackType="thumbnail"
           />
         </div>
       </Link>
@@ -82,7 +89,9 @@ export function ProductCard({
       {/* Product details */}
       <div className="mt-3 space-y-1">
         {category && (
-          <p className="text-xs text-text-secondary">{category}</p>
+          <Text variant="small" className="text-text-secondary/70">
+            {category}
+          </Text>
         )}
         
         <Link href={`/products/${slug}`} className="block">
@@ -92,9 +101,13 @@ export function ProductCard({
         </Link>
         
         <div className="flex items-center gap-2">
-          <p className="font-medium text-text-primary">₹{price.toLocaleString()}</p>
+          <Text weight="medium" className="text-text-primary">
+            ₹{price.toLocaleString()}
+          </Text>
           {compareAtPrice && compareAtPrice > price && (
-            <p className="text-sm text-text-secondary line-through">₹{compareAtPrice.toLocaleString()}</p>
+            <Text variant="small" className="text-text-secondary line-through">
+              ₹{compareAtPrice.toLocaleString()}
+            </Text>
           )}
         </div>
       </div>

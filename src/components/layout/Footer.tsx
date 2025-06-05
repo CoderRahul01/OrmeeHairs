@@ -1,46 +1,79 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Instagram, Facebook, Youtube, Twitter } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { Container } from '../ui/Container';
+import { Heading, Text } from '../ui/Typography';
+import { Input } from '../ui/Input';
 
 export function Footer() {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) return;
+    
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+      setEmail('');
+      
+      // Reset success message after 3 seconds
+      setTimeout(() => {
+        setIsSubmitted(false);
+      }, 3000);
+    }, 800);
+  };
+  
   return (
     <footer className="bg-background border-t border-accent-gold/10 pt-12 pb-8">
-      <div className="container">
+      <Container>
         {/* Newsletter Section */}
         <div className="mb-12 text-center">
-          <h3 className="font-heading text-2xl mb-4 text-text-primary">Join Our Community</h3>
-          <p className="text-text-secondary mb-6 max-w-md mx-auto">
+          <Heading variant="h3" className="mb-4">Join Our Community</Heading>
+          <Text className="mb-6 max-w-md mx-auto">
             Subscribe to receive exclusive offers, styling tips, and updates on new products.
-          </p>
-          <form 
-            className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto"
-            onSubmit={(e) => {
-              e.preventDefault();
-              // Newsletter signup logic would go here
-            }}
-          >
-            <input 
-              type="email" 
-              placeholder="Your email address" 
-              className="flex-1 h-10 px-4 rounded-md border border-accent-gold/20 focus:outline-none focus:ring-2 focus:ring-accent-gold"
-              required
-            />
-            <Button type="submit" size="default">
-              Subscribe
-            </Button>
-          </form>
+          </Text>
+          
+          {isSubmitted ? (
+            <div className="bg-green-50 text-green-700 py-3 px-4 rounded-md max-w-md mx-auto">
+              Thank you for subscribing! You'll receive updates soon.
+            </div>
+          ) : (
+            <form 
+              className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto"
+              onSubmit={handleNewsletterSubmit}
+            >
+              <Input 
+                type="email" 
+                placeholder="Your email address" 
+                className="flex-1"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <Button type="submit" isLoading={isSubmitting}>
+                Subscribe
+              </Button>
+            </form>
+          )}
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           {/* Company Info */}
           <div>
-            <h4 className="font-heading text-lg mb-4 text-text-primary">Ormee Hair</h4>
-            <p className="text-text-secondary mb-4">
+            <Heading variant="h5" className="mb-4">Ormee Hair</Heading>
+            <Text className="mb-4">
               Premium quality hair extensions and wigs. Transform your look with our luxury hair solutions.
-            </p>
+            </Text>
             <div className="flex space-x-4">
               <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                 <Instagram className="h-5 w-5 text-text-primary hover:text-accent-gold transition-colors" />
@@ -59,7 +92,7 @@ export function Footer() {
           
           {/* Shop */}
           <div>
-            <h4 className="font-heading text-lg mb-4 text-text-primary">Shop</h4>
+            <Heading variant="h5" className="mb-4">Shop</Heading>
             <ul className="space-y-2">
               <li>
                 <Link href="/products/hair-extensions" className="text-text-secondary hover:text-accent-gold transition-colors">
@@ -91,7 +124,7 @@ export function Footer() {
           
           {/* About */}
           <div>
-            <h4 className="font-heading text-lg mb-4 text-text-primary">About</h4>
+            <Heading variant="h5" className="mb-4">About</Heading>
             <ul className="space-y-2">
               <li>
                 <Link href="/about" className="text-text-secondary hover:text-accent-gold transition-colors">
@@ -118,7 +151,7 @@ export function Footer() {
           
           {/* Help */}
           <div>
-            <h4 className="font-heading text-lg mb-4 text-text-primary">Help</h4>
+            <Heading variant="h5" className="mb-4">Help</Heading>
             <ul className="space-y-2">
               <li>
                 <Link href="/shipping" className="text-text-secondary hover:text-accent-gold transition-colors">
@@ -150,13 +183,15 @@ export function Footer() {
         </div>
         
         {/* Bottom Section */}
-        <div className="border-t border-accent-gold/10 pt-8 text-center text-text-secondary text-sm">
-          <p>&copy; {new Date().getFullYear()} Ormee Hair. All rights reserved.</p>
-          <p className="mt-2">
+        <div className="border-t border-accent-gold/10 pt-8 text-center">
+          <Text variant="small" className="text-text-secondary">
+            &copy; {new Date().getFullYear()} Ormee Hair. All rights reserved.
+          </Text>
+          <Text variant="small" className="mt-2 text-text-secondary">
             Designed and developed with ♥ for the Emilio Beaufort heritage.
-          </p>
+          </Text>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 } 
