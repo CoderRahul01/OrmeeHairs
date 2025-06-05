@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import { ProductCard } from './ProductCard';
+import { getPlaceholderImage } from '@/lib/utils/placeholders';
 
 interface Product {
   id: string;
@@ -36,7 +39,7 @@ export function ProductGrid({ products, columns = 4 }: ProductGridProps) {
           slug={product.slug}
           price={product.price}
           compareAtPrice={product.compareAtPrice}
-          image={product.images[0] || 'https://placeholder.com/800x1000'}
+          image={product.images[0] || getPlaceholderImage('product')}
           category={product.category?.name}
           isFeatured={product.featured}
         />

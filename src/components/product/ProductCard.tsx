@@ -1,7 +1,9 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Heart } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useCart } from '../../lib/contexts/CartContext';
 

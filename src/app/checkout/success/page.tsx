@@ -5,9 +5,11 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Check, ShoppingBag } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/Button';
+import { getPlaceholderImage } from '@/lib/utils/placeholders';
 
 export default function CheckoutSuccessPage() {
   const { data: session } = useSession();

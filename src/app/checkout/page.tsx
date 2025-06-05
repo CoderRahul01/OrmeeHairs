@@ -3,10 +3,12 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/Button';
 import { useCart } from '@/lib/contexts/CartContext';
+import { getPlaceholderImage } from '@/lib/utils/placeholders';
 
 // Checkout steps
 const STEPS = {

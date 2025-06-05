@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
@@ -8,9 +10,9 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background text-text-primary">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 w-full">
         {children}
       </main>
       <Footer />

@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Loader2 } from 'lucide-react';
@@ -41,17 +43,31 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, children, variant, size, fullWidth, isLoading, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
+    const buttonClasses = buttonVariants({ variant, size, fullWidth, className });
+    
+    if (asChild) {
+      return (
+        <Comp
+          className={buttonClasses}
+          ref={ref}
+          disabled={isLoading || props.disabled}
+          {...props}
+        >
+          {children}
+        </Comp>
+      );
+    }
     
     return (
-      <Comp
-        className={buttonVariants({ variant, size, fullWidth, className })}
+      <button
+        className={buttonClasses}
         ref={ref}
         disabled={isLoading || props.disabled}
         {...props}
       >
         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {children}
-      </Comp>
+      </button>
     );
   }
 );

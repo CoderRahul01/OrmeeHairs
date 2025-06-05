@@ -1,16 +1,9 @@
-import * as SibApiV3Sdk from 'sib-api-v3-sdk';
+import { Resend } from 'resend';
 
-// Initialize the Brevo (Sendinblue) API client
-let apiInstance: any = null;
-apiInstance = new (SibApiV3Sdk as any).TransactionalEmailsApi();
-
-// Initialize the API only if API key is available
-if (process.env.BREVO_API_KEY) {
-  const defaultClient = SibApiV3Sdk.ApiClient.instance;
-  const apiKey = defaultClient.authentications['api-key'];
-  apiKey.apiKey = process.env.BREVO_API_KEY;
-  apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-}
+// Initialize the Resend client
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 
 export interface EmailParams {
   to: {
@@ -19,67 +12,98 @@ export interface EmailParams {
   }[];
   subject: string;
   htmlContent?: string;
-  templateId?: number;
-  params?: Record<string, any>;
+  templateId?: number; // Kept for backward compatibility
+  params?: Record<string, any>; // Kept for backward compatibility
   sender?: {
     email: string;
     name: string;
   };
+  replyTo?: {
+    email: string;
+    name?: string;
+  };
+  attachments?: {
+    filename: string;
+    content: Buffer;
+  }[];
 }
 
 /**
- * Send an email using Brevo (Sendinblue)
+ * Send an email using Resend
  * @param params Email parameters
  * @returns Promise that resolves when email is sent
  */
 export async function sendEmail(params: EmailParams): Promise<boolean> {
   // If API is not initialized, log warning and return
-  if (!apiInstance) {
-    console.warn('Email service not initialized. Check BREVO_API_KEY environment variable.');
+  if (!resend) {
+    console.warn('Email service not initialized. Check RESEND_API_KEY environment variable.');
     
     // In development, log the email that would have been sent
     if (process.env.NODE_ENV === 'development') {
       console.log('Would have sent email:');
       console.log('To:', params.to.map(recipient => `${recipient.name || ''} <${recipient.email}>`).join(', '));
       console.log('Subject:', params.subject);
-      console.log('Template ID:', params.templateId);
       console.log('HTML Content:', params.htmlContent?.substring(0, 150) + '...');
-      console.log('Params:', params.params);
+      if (params.templateId) {
+        console.log('Note: templateId is not supported in Resend. Using htmlContent instead.');
+      }
     }
     
     return false;
   }
 
   try {
-    // Create send email request
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-    
-    // Set recipients
-    sendSmtpEmail.to = params.to;
-    
-    // Set subject
-    sendSmtpEmail.subject = params.subject;
-    
-    // Set sender
-    sendSmtpEmail.sender = params.sender || {
-      email: process.env.BREVO_DEFAULT_SENDER_EMAIL || 'noreply@ormeehair.com',
-      name: process.env.BREVO_DEFAULT_SENDER_NAME || 'Ormee Hair',
+    const defaultSender = {
+      email: process.env.RESEND_DEFAULT_SENDER_EMAIL || 'noreply@ormeehair.com',
+      name: process.env.RESEND_DEFAULT_SENDER_NAME || 'Ormee Hair',
     };
-    
-    // Set HTML content or template
-    if (params.templateId) {
-      sendSmtpEmail.templateId = params.templateId;
-      
-      if (params.params) {
-        sendSmtpEmail.params = params.params;
+
+    // Format recipients
+    const to = params.to.map(recipient => {
+      if (recipient.name) {
+        return `${recipient.name} <${recipient.email}>`;
       }
-    } else if (params.htmlContent) {
-      sendSmtpEmail.htmlContent = params.htmlContent;
+      return recipient.email;
+    });
+
+    // Create email data object
+    const emailData: any = {
+      from: params.sender 
+        ? `${params.sender.name} <${params.sender.email}>` 
+        : `${defaultSender.name} <${defaultSender.email}>`,
+      to,
+      subject: params.subject,
+    };
+
+    // Set HTML content
+    if (params.htmlContent) {
+      emailData.html = params.htmlContent;
+    }
+
+    // Set reply-to if provided
+    if (params.replyTo) {
+      emailData.reply_to = params.replyTo.name 
+        ? `${params.replyTo.name} <${params.replyTo.email}>`
+        : params.replyTo.email;
+    }
+
+    // Set attachments if provided
+    if (params.attachments && params.attachments.length > 0) {
+      emailData.attachments = params.attachments.map(attachment => ({
+        filename: attachment.filename,
+        content: attachment.content,
+      }));
     }
     
     // Send the email
-    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log('Email sent successfully. Message ID:', data.messageId);
+    const { data, error } = await resend.emails.send(emailData);
+    
+    if (error) {
+      console.error('Error sending email:', error);
+      return false;
+    }
+    
+    console.log('Email sent successfully. ID:', data?.id);
     return true;
   } catch (error) {
     console.error('Error sending email:', error);

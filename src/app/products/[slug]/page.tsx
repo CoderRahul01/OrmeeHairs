@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Metadata } from 'next';
 import Image from 'next/image';
@@ -8,6 +10,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import prisma from '@/lib/prisma';
 import AddToCartButton from '@/components/product/AddToCartButton';
+import { getPlaceholderImage } from '@/lib/utils/placeholders';
 
 interface ProductPageProps {
   params: {
@@ -145,7 +148,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <div className="space-y-4">
               <div className="aspect-square relative bg-background-secondary rounded-lg overflow-hidden">
                 <Image
-                  src={product.images[0] as string || 'https://placeholder.com/800x800'}
+                  src={product.images[0] as string || getPlaceholderImage('product')}
                   alt={product.name}
                   fill
                   className="object-cover"
@@ -198,7 +201,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     id: product.id,
                     name: product.name,
                     price: Number(product.price),
-                    image: product.images[0] as string || 'https://placeholder.com/800x800',
+                    image: product.images[0] as string || getPlaceholderImage('product'),
                   }}
                 />
               </div>

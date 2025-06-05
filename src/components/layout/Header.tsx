@@ -25,7 +25,7 @@ export function Header() {
   };
 
   return (
-    <header className="bg-background sticky top-0 z-40 border-b border-b-accent-gold/10">
+    <header className="bg-background-secondary sticky top-0 z-40 border-b border-b-accent-gold/10 shadow-sm">
       <div className="container flex h-16 items-center justify-between">
         {/* Mobile Menu Button */}
         <button 
@@ -40,7 +40,7 @@ export function Header() {
         <div className="flex items-center">
           <Link href="/" className="flex items-center">
             <span className="font-heading text-2xl font-bold tracking-tight text-text-primary">
-              Ormee Hair
+              Ormee <span className="text-accent-gold">Hair</span>
             </span>
           </Link>
         </div>
@@ -193,7 +193,7 @@ export function Header() {
       
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-background border-t border-accent-gold/10">
+        <div className="md:hidden bg-background-secondary border-t border-accent-gold/10">
           <nav className="flex flex-col py-4">
             <Link 
               href="/products/hair-extensions" 

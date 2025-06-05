@@ -28,10 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body
-        className={`${inter.variable} ${playfairDisplay.variable} antialiased`}
-      >
+    <html lang="en" className={`scroll-smooth ${inter.variable} ${playfairDisplay.variable}`}>
+      <body className="min-h-screen bg-background text-text-primary font-body antialiased">
         <SessionProvider>
           <CartProvider>
             {children}

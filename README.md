@@ -17,7 +17,7 @@ A premium e-commerce platform for hair extensions, wigs, and hair care products 
 - **Styling**: Tailwind CSS
 - **Authentication**: NextAuth.js
 - **Database**: PostgreSQL with Prisma ORM
-- **Email**: Brevo (Sendinblue) API
+- **Email**: Resend API
 - **State Management**: React Context API
 
 ## Getting Started
@@ -26,7 +26,7 @@ A premium e-commerce platform for hair extensions, wigs, and hair care products 
 
 - Node.js 18+
 - PostgreSQL database (or Neon DB account)
-- Brevo/Sendinblue API key (for emails)
+- Resend API key (for emails)
 
 ### Environment Setup
 
@@ -44,10 +44,10 @@ A premium e-commerce platform for hair extensions, wigs, and hair care products 
    NEXTAUTH_URL="http://localhost:3000"
    NEXTAUTH_SECRET="your-secret-key"
 
-   # Email Service (Brevo/Sendinblue)
-   BREVO_API_KEY="your-brevo-api-key"
-   BREVO_DEFAULT_SENDER_EMAIL="noreply@yourdomain.com"
-   BREVO_DEFAULT_SENDER_NAME="Ormee Hair"
+   # Email Service (Resend)
+   RESEND_API_KEY="re_your_api_key"
+   RESEND_DEFAULT_SENDER_EMAIL="noreply@yourdomain.com"
+   RESEND_DEFAULT_SENDER_NAME="Ormee Hair"
 
    # Application URL
    NEXT_PUBLIC_APP_URL="http://localhost:3000"

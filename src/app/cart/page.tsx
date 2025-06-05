@@ -8,6 +8,7 @@ import { Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useCart } from '@/lib/contexts/CartContext';
+import { getPlaceholderImage } from '@/lib/utils/placeholders';
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, subtotal } = useCart();
@@ -60,7 +61,7 @@ export default function CartPage() {
                     <div className="md:col-span-6 flex gap-4">
                       <div className="relative w-20 h-20 flex-shrink-0 bg-white rounded-md overflow-hidden">
                         <Image
-                          src={item.image || 'https://placeholder.com/80x80'}
+                          src={item.image || getPlaceholderImage('thumbnail')}
                           alt={item.name}
                           fill
                           className="object-cover"

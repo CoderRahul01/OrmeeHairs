@@ -3,10 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --foreground: 74, 59, 50; /* Deep Brown */
-  --background: 255, 251, 245; /* Warm Cream */
-  --accent-gold: 176, 141, 87; /* Muted Gold */
-  --accent-rose: 217, 175, 164; /* Rose Gold */
+  --foreground-rgb: 74, 59, 50; /* Deep Brown */
+  --background-rgb: 255, 251, 245; /* Warm Cream */
+  --accent-gold-rgb: 176, 141, 87; /* Muted Gold */
+  --accent-rose-rgb: 217, 175, 164; /* Rose Gold */
+  --background-secondary-rgb: 255, 255, 255; /* Soft White */
+  --text-secondary-rgb: 51, 51, 51; /* Charcoal Grey */
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-color: rgb(var(--background-rgb));
 }
 
 @layer base {
